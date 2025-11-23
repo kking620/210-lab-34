@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <string>
 #include <limits>
+#include <tuple>
 using namespace std;
 
 const int SIZE = 9;
@@ -150,6 +151,61 @@ public:
         }
         cout << endl;
     }
+
+    void minimumSpanningTree() {
+        cout << "Minimum Spanning Tree Edges:" << endl;
+        cout << "Purpose: Identifying essential infrastructure links to connect all stops with minimum total distance/cost" << endl;
+        cout << "=======================================================" << endl;
+        
+        // Priority structure: (weight, source_vertex, destination_vertex)
+        // We use a set of tuples to automatically sort by weight (first element)
+        set<tuple<int, int, int>> edgeSet;
+
+        vector<int> min_weight(SIZE, INF);
+        vector<bool> inMST(SIZE, false);
+        vector<int> parent(SIZE, -1);
+        int startVertex = 0; // Start Prim's from vertex 0
+
+        edgeSet.insert(make_tuple(0, -1, startVertex));
+        min_weight[startVertex] = 0;
+
+        while (!edgeSet.empty()) {
+            // Extract the minimum weight edge from the set
+            auto it = edgeSet.begin();
+            int u = get<2>(*it);
+            int p = get<1>(*it);
+            edgeSet.erase(it);
+
+            // If already included in MST, skip
+            if (inMST[u]) continue;
+
+            inMST[u] = true;
+            parent[u] = p;
+
+            // Add the selected edge to the output if it's not the start node itself
+            if (parent[u] != -1) {
+                 cout << "Edge from " << parent[u] << " (" << stopNames[parent[u]] << ") to " 
+                      << u << " (" << stopNames[u] << ") with time: " 
+                      << min_weight[u] << " mins" << endl;
+            }
+
+            // Iterate over all neighbors of u
+            for (auto& link : adjList[u]) {
+                int v = link.first;
+                int weight = link.second;
+
+                // If v is not in MST and weight of edge (u, v) is smaller than current min_weight[v]
+                if (!inMST[v] && weight < min_weight[v]) {
+                    // Update the minimum weight for v and insert (or update) in the set
+                    min_weight[v] = weight;
+                    // Note: In a set, we cannot directly update a tuple's value in place.
+                    // We must erase the old entry and insert a new one if it existed.
+                    // A simple insertion is fine since we check `inMST` above.
+                    edgeSet.insert(make_tuple(weight, u, v));
+                }
+            }
+        }
+    }
 };
 
 int main() {
@@ -179,6 +235,9 @@ int main() {
 
     cout << "Calculating the shortest paths:\n";
     graph.shortestPath(0);
+
+    cout << "Calculating the minimum spanning tree:\n";
+    graph.minimumSpanningTree();
 
     return 0;
 }
