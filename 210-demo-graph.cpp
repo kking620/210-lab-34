@@ -4,6 +4,7 @@
 #include <stack>
 #include <map>
 #include <algorithm>
+#include <set>
 using namespace std;
 
 const int SIZE = 7;
@@ -47,6 +48,62 @@ public:
             cout << endl;
         }
     }
+
+    void DFS(int startVertex) {
+        set<int> visited;
+        stack<int> s;
+
+        s.push(startVertex);
+        visited.insert(startVertex);
+        cout << startVertex << " ";
+
+        while (!s.empty()) {
+            int current = s.top();
+            s.pop();}
+    }
+
+    void dfsUtil(int v, set<int>& visited) {
+        visited.insert(v);
+        cout << v << " ";
+
+        for (Pair neighbor : adjList[v]) {
+            int nextVertex = neighbor.first;
+            if (visited.find(nextVertex) == visited.end()) {
+                dfsUtil(nextVertex, visited);
+            }
+        }
+    }
+
+    void startDFS(int startVertex) {
+        set<int> visited;
+        dfsUtil(startVertex, visited);
+        cout << endl;
+    }
+
+    void bfs(int startVertex) {
+        set<int> visited;
+        deque<int> q;
+
+        q.push_back(startVertex);
+        visited.insert(startVertex);
+
+        while (!q.empty()) {
+            int current = q.front();
+            q.pop_front();
+            cout << current << " ";
+
+            for (Pair neighbor : adjList[current]) {
+                int nextVertex = neighbor.first;
+                if (visited.find(nextVertex) == visited.end()) {
+                    visited.insert(nextVertex);
+                    q.push_back(nextVertex);
+                }
+            }
+        }
+        cout << endl;
+    }
+
+
 };
 
 int main() {
@@ -61,6 +118,12 @@ int main() {
 
     // Prints adjacency list representation of graph
     graph.printGraph();
+
+    cout << "DFS starting from vertex 0:\n";
+    graph.startDFS(0);
+    
+    cout << "BFS starting from vertex 0:\n";
+    graph.bfs(0);
 
     return 0;
 }
