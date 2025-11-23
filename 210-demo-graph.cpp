@@ -7,9 +7,11 @@
 #include <set>
 #include <iomanip>
 #include <string>
+#include <limits>
 using namespace std;
 
 const int SIZE = 9;
+const int INF = numeric_limits<int>::max();
 
 struct BusRoute {
     int src, dest, travelTime;
@@ -104,7 +106,50 @@ public:
         cout << endl;
     }
 
+    void shortestPath(int startVertex) {
+        cout << "Shortest Path Calculation from " << stopNames[startVertex] << ":" << endl;
+        cout << "=================================================" << endl;
+        // Use a set of (weight, vertex) pairs to simulate a priority queue.
+        // The set automatically keeps elements sorted by the first element (weight).
+        set<RouteLink> setds;
+        vector<int> dist(SIZE, INF);
 
+        setds.insert(make_pair(0, startVertex));
+        dist[startVertex] = 0;
+
+        while (!setds.empty()) {
+            // Extract the minimum distance vertex from the set
+            RouteLink tmp = *setds.begin();
+            setds.erase(setds.begin());
+
+            int u = tmp.second;
+
+            // Iterate over all neighbors of u
+            for (auto& link : adjList[u]) {
+                int v = link.first;
+                int weight = link.second;
+
+                // If a shorter path to v is found through u
+                if (dist[v] > dist[u] + weight) {
+                    // If v is already in the set, we need to remove the old entry
+                    // before inserting the new one with the smaller distance.
+                    if (dist[v] != INF)
+                        setds.erase(setds.find(make_pair(dist[v], v)));
+
+                    // Update the distance and insert the new pair into the set
+                    dist[v] = dist[u] + weight;
+                    setds.insert(make_pair(dist[v], v));
+                }
+            }
+        }
+
+        // Print the shortest distances
+        for (int i = 0; i < SIZE; ++i) {
+            cout << startVertex << " -> " << i << " (" << stopNames[i] << ") : " 
+                 << dist[i] << " mins" << endl;
+        }
+        cout << endl;
+    }
 };
 
 int main() {
@@ -131,6 +176,9 @@ int main() {
     
     cout << "BFS starting from vertex 0:\n";
     graph.bfs(0);
+
+    cout << "Calculating the shortest paths:\n";
+    graph.shortestPath(0);
 
     return 0;
 }
