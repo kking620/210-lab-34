@@ -1,5 +1,9 @@
 #include <iostream>
 #include <vector>
+#include <deque>
+#include <stack>
+#include <map>
+#include <algorithm>
 using namespace std;
 
 const int SIZE = 7;
