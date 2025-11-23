@@ -5,9 +5,11 @@
 #include <map>
 #include <algorithm>
 #include <set>
+#include <iomanip>
+#include <string>
 using namespace std;
 
-const int SIZE = 7;
+const int SIZE = 9;
 
 struct BusRoute {
     int src, dest, travelTime;
@@ -22,7 +24,7 @@ public:
     vector<string> stopNames;
 
     // Graph Constructor
-    BusNetwork(vector<BusRoute> const &routes, int numStops, vector<string> names) {
+    BusNetwork(vector<BusRoute> const &routes, int numStops, vector<string> names) : stopNames(names) {
         // resize the vector to hold SIZE elements of type vector<Edge>
         adjList.resize(SIZE);
 
@@ -41,47 +43,43 @@ public:
 
     // Print the graph's adjacency list
     void printGraph() {
-        cout << "Bus Route Connections:" << endl;
+       cout << "Bus Stop Network Topology:" << endl;
+        cout << "================================" << endl;
         for (int i = 0; i < adjList.size(); i++) {
-            cout << i << " connects to: ";
-            for (RouteLink v : adjList[i])
-                cout << " -> " << v.first << ") , (Number of Buses that Stop Here: " << v.second << ") ";
-            cout << endl;
-        }
-    }
-
-    void DFS(int startVertex) {
-        set<int> visited;
-        stack<int> s;
-
-        s.push(startVertex);
-        visited.insert(startVertex);
-        cout << startVertex << " ";
-
-        while (!s.empty()) {
-            int current = s.top();
-            s.pop();}
-    }
-
-    void dfsUtil(int v, set<int>& visited) {
-        visited.insert(v);
-        cout << v << " ";
-
-        for (RouteLink neighbor : adjList[v]) {
-            int nextVertex = neighbor.first;
-            if (visited.find(nextVertex) == visited.end()) {
-                dfsUtil(nextVertex, visited);
+            cout << stopNames[i] << " connects to:" << endl;
+            for (RouteLink link : adjList[i]) {
+                cout << "  -> " << stopNames[link.first] << " (" << link.second << " mins away)" << endl;
             }
         }
     }
 
-    void startDFS(int startVertex) {
+    void DFS(int startVertex) {
+        cout << "Inspection Route Planner (DFS) starting at " << stopNames[startVertex] << ":" << endl;
+        cout << "Purpose: Ensuring all stops are visited efficiently" << endl;
+        cout << "=======================================" << endl;
         set<int> visited;
         dfsUtil(startVertex, visited);
         cout << endl;
     }
 
+    void dfsUtil(int v, set<int>& visited) {
+        visited.insert(v);
+        cout << "Inspecting " << stopNames[v] << endl;
+
+        for (RouteLink neighbor : adjList[v]) {
+            int nextStop = neighbor.first;
+            if (visited.find(nextStop) == visited.end()) {
+                 cout << "  -> Next potential stop: " << stopNames[nextStop] 
+                      << " (" << neighbor.second << " mins away)" << endl;
+                dfsUtil(nextStop, visited);
+            }
+        }
+    }
+
     void bfs(int startVertex) {
+        cout << "Service Area Analysis (BFS) from " << stopNames[startVertex] << ":" << endl;
+        cout << "Purpose: Analyzing stops reachable in layers of distance" << endl;
+        cout << "=================================================" << endl;
         set<int> visited;
         deque<int> q;
 
@@ -91,13 +89,15 @@ public:
         while (!q.empty()) {
             int current = q.front();
             q.pop_front();
-            cout << current << " ";
+            cout << "Checking service for " << stopNames[current] << endl;
 
             for (RouteLink neighbor : adjList[current]) {
-                int nextVertex = neighbor.first;
-                if (visited.find(nextVertex) == visited.end()) {
-                    visited.insert(nextVertex);
-                    q.push_back(nextVertex);
+                int nextStop = neighbor.first;
+                if (visited.find(nextStop) == visited.end()) {
+                    visited.insert(nextStop);
+                    q.push_back(nextStop);
+                    cout << "  -> Next layer stop: " << stopNames[nextStop] 
+                         << " (" << neighbor.second << " mins away)" << endl;
                 }
             }
         }
@@ -127,7 +127,7 @@ int main() {
     graph.printGraph();
 
     cout << "DFS starting from vertex 0:\n";
-    graph.startDFS(0);
+    graph.DFS(0);
     
     cout << "BFS starting from vertex 0:\n";
     graph.bfs(0);
