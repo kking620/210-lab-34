@@ -1,3 +1,5 @@
+//COMSC-210 | Lab 34 | Kristofer King
+//IDE Used: VSC
 #include <iostream>
 #include <vector>
 #include <deque>
@@ -60,17 +62,22 @@ public:
         cout << "Inspection Route Planner (DFS) starting at " << stopNames[startVertex] << ":" << endl;
         cout << "Purpose: Ensuring all stops are visited efficiently" << endl;
         cout << "=======================================" << endl;
+        // Set to keep track of visited stops during the traversal
         set<int> visited;
+        // Call the recursive helper function to perform DFS
         dfsUtil(startVertex, visited);
         cout << endl;
     }
 
     void dfsUtil(int v, set<int>& visited) {
+        // Mark the current node as visited
         visited.insert(v);
         cout << "Inspecting " << stopNames[v] << endl;
 
+        // Recurse for all the vertices adjacent to this vertex
         for (RouteLink neighbor : adjList[v]) {
             int nextStop = neighbor.first;
+            // If the neighbor hasn't been visited, go inspect it
             if (visited.find(nextStop) == visited.end()) {
                  cout << "  -> Next potential stop: " << stopNames[nextStop] 
                       << " (" << neighbor.second << " mins away)" << endl;
@@ -83,20 +90,28 @@ public:
         cout << "Service Area Analysis (BFS) from " << stopNames[startVertex] << ":" << endl;
         cout << "Purpose: Analyzing stops reachable in layers of distance" << endl;
         cout << "=================================================" << endl;
+        // Set to keep track of visited stops
         set<int> visited;
+        // Deque to manage the queue of stops to visit (FIFO)
         deque<int> q;
 
+        // Enqueue the starting stop and mark it as visited
         q.push_back(startVertex);
         visited.insert(startVertex);
 
+        // Loop as long as there are stops in the queue
         while (!q.empty()) {
+            // Dequeue a stop from the front of the queue
             int current = q.front();
             q.pop_front();
             cout << "Checking service for " << stopNames[current] << endl;
 
+            // Get all adjacent stops of the dequeued stop 'current'
             for (RouteLink neighbor : adjList[current]) {
                 int nextStop = neighbor.first;
+                // If an adjacent stop has not been visited
                 if (visited.find(nextStop) == visited.end()) {
+                    // Mark it as visited and enqueue it
                     visited.insert(nextStop);
                     q.push_back(nextStop);
                     cout << "  -> Next layer stop: " << stopNames[nextStop] 
@@ -223,21 +238,47 @@ int main() {
 
     // Creates graph
     BusNetwork graph(busRoute, SIZE, names);
+    int choice;
 
-    // Prints adjacency list representation of graph
-    graph.printGraph();
+    do {
+        cout << "\nBus Stop Network Analysis Menu:" << endl;
+        cout << "[1] Display network topology" << endl;
+        cout << "[2] Perform service area analysis (BFS)" << endl;
+        cout << "[3] Plan inspection route (DFS)" << endl;
+        cout << "[4] Calculate shortest paths from Stop A" << endl;
+        cout << "[5] Find Minimum Spanning Tree" << endl;
+        cout << "[0] Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cout << endl;
 
-    cout << "DFS starting from vertex 0:\n";
-    graph.DFS(0);
-    
-    cout << "BFS starting from vertex 0:\n";
-    graph.bfs(0);
-
-    cout << "Calculating the shortest paths:\n";
-    graph.shortestPath(0);
-
-    cout << "Calculating the minimum spanning tree:\n";
-    graph.minimumSpanningTree();
+        switch (choice) {
+            case 1:
+                graph.printGraph();
+                break;
+            case 2:
+                cout << "BFS starting from vertex 0:\n";
+                graph.bfs(0); // Assuming analysis starts from Stop A (vertex 0)
+                break;
+            case 3:
+                cout << "DFS starting from vertex 0:\n";
+                graph.DFS(0); // Assuming inspection starts from Stop A (vertex 0)
+                break;
+            case 4:
+                cout << "Calculating the shortest paths:\n";
+                graph.shortestPath(0); // Calculate paths from Stop A (vertex 0)
+                break;
+            case 5:
+                cout << "Calculating the minimum spanning tree:\n";    
+                graph.minimumSpanningTree();
+                break;
+            case 0:
+                cout << "Exiting program. Goodbye!" << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+        }
+    } while (choice != 0);
 
     return 0;
 }
